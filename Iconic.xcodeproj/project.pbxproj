@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E054AAFB239B32AF0002DE6B /* GenerateFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E054AAFA239B32AF0002DE6B /* GenerateFlowView.swift */; };
 		E06B2A0D238D92000059326F /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06B2A0C238D92000059326F /* Collection.swift */; };
 		E06B2A10238D9AED0059326F /* ActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06B2A0F238D9AED0059326F /* ActivityViewController.swift */; };
 		E06B2A12238D9D150059326F /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06B2A11238D9D150059326F /* UIImage.swift */; };
@@ -21,6 +22,7 @@
 		E0A8984C2369C25500E8B817 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E0A8984B2369C25500E8B817 /* Preview Assets.xcassets */; };
 		E0A8984F2369C25500E8B817 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E0A8984D2369C25500E8B817 /* LaunchScreen.storyboard */; };
 		E0A8985A2369C31F00E8B817 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A898592369C31F00E8B817 /* MainView.swift */; };
+		E0C78A7223A0574F00D30535 /* HiddenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C78A7123A0574F00D30535 /* HiddenModifier.swift */; };
 		E0DF12F12396E542009080C1 /* AppIconSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0DF12F02396E542009080C1 /* AppIconSet.swift */; };
 		E0E784A72397130E00170C39 /* UserDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E784A62397130E00170C39 /* UserDefault.swift */; };
 		E0E784A9239714AF00170C39 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E784A8239714AF00170C39 /* Session.swift */; };
@@ -29,6 +31,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E054AAFA239B32AF0002DE6B /* GenerateFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateFlowView.swift; sourceTree = "<group>"; };
 		E06B2A0C238D92000059326F /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		E06B2A0F238D9AED0059326F /* ActivityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewController.swift; sourceTree = "<group>"; };
 		E06B2A11238D9D150059326F /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
@@ -46,6 +49,7 @@
 		E0A898502369C25500E8B817 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E0A898562369C29E00E8B817 /* Iconic.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Iconic.entitlements; sourceTree = "<group>"; };
 		E0A898592369C31F00E8B817 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		E0C78A7123A0574F00D30535 /* HiddenModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiddenModifier.swift; sourceTree = "<group>"; };
 		E0DF12F02396E542009080C1 /* AppIconSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconSet.swift; sourceTree = "<group>"; };
 		E0E784A62397130E00170C39 /* UserDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefault.swift; sourceTree = "<group>"; };
 		E0E784A8239714AF00170C39 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
@@ -69,6 +73,7 @@
 			children = (
 				E06B2A0C238D92000059326F /* Collection.swift */,
 				E06B2A11238D9D150059326F /* UIImage.swift */,
+				E0C78A7123A0574F00D30535 /* HiddenModifier.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -192,6 +197,7 @@
 			children = (
 				E0F9D4822369D6940006FDA5 /* GenerateView.swift */,
 				E0766243238DD29B00A8B99F /* GenerateProgressView.swift */,
+				E054AAFA239B32AF0002DE6B /* GenerateFlowView.swift */,
 			);
 			path = Generate;
 			sourceTree = "<group>";
@@ -270,6 +276,7 @@
 				E0F9D4802369C6CA0006FDA5 /* DocumentPickerView.swift in Sources */,
 				E0E784A9239714AF00170C39 /* Session.swift in Sources */,
 				E0879584238C36C200A11DD7 /* AssetSize.swift in Sources */,
+				E054AAFB239B32AF0002DE6B /* GenerateFlowView.swift in Sources */,
 				E0E784A72397130E00170C39 /* UserDefault.swift in Sources */,
 				E0A898432369C25300E8B817 /* AppDelegate.swift in Sources */,
 				E0A8985A2369C31F00E8B817 /* MainView.swift in Sources */,
@@ -280,6 +287,7 @@
 				E06B2A0D238D92000059326F /* Collection.swift in Sources */,
 				E0F9D4832369D6940006FDA5 /* GenerateView.swift in Sources */,
 				E0A898452369C25300E8B817 /* SceneDelegate.swift in Sources */,
+				E0C78A7223A0574F00D30535 /* HiddenModifier.swift in Sources */,
 				E06B2A12238D9D150059326F /* UIImage.swift in Sources */,
 				E0766244238DD29B00A8B99F /* GenerateProgressView.swift in Sources */,
 				E087957D238C166200A11DD7 /* ExportView.swift in Sources */,

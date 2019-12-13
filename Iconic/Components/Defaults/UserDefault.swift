@@ -9,8 +9,7 @@
 import Foundation
 
 struct Defaults {
-    @CodableUserDefault(key: "iconic_sessions", defaultValue: [])
-    static var sessions: [SessionReference]
+    
 }
 
 @propertyWrapper

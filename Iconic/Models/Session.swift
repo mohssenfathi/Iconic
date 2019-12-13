@@ -9,17 +9,7 @@
 import Foundation
 import UIKit
 
-
-struct SessionReference: Identifiable, Codable {
-    let id: String
-    var url: URL
-    
-    func session() throws -> Session {
-        try Session(identifier: id)
-    }
-}
-
-class Session: ObservableObject, Identifiable {
+class Session: ObservableObject, Identifiable, Hashable {
     
     @Published var image: UIImage
     @Published var contents: Contents
@@ -36,10 +26,10 @@ class Session: ObservableObject, Identifiable {
     
     let id: String
     let url: URL
+    var iconSetUrl: URL { url(for: "AppIcon.appiconset") }
+    var contentsUrl: URL { url(for: "Contents.plist") }
     
     private let fileManager = FileManager.default
-    private var iconSetUrl: URL { url(for: "AppIcon.appiconset") }
-    private var contentsUrl: URL { url(for: "Contents.plist") }
     
     init(identifier: String = UUID().uuidString) throws {
         self.id = identifier
@@ -99,6 +89,14 @@ class Session: ObservableObject, Identifiable {
             self.devices = devices
             self.appIconSet = appIconSet
         }
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+     
+    static func == (lhs: Session, rhs: Session) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 

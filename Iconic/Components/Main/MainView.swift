@@ -12,39 +12,52 @@ import MobileCoreServices
 struct MainView: View {
     @State var isGenerateViewPresented: Bool = false
     @State var isExportViewPresented: Bool = false
-    @State var selectedSession: Session?
     @State var sessions: [Session] = []
+    @State var selectedSession: Session.ID?
     
     var body: some View {
         NavigationView {
-            List {
-                ForEach(sessions) { session in
-                    SessionRow(session: session, selectionHandler: { _ in
-                        self.isExportViewPresented = true
-                    })
-                    NavigationLink(
-                        destination: ExportView().environmentObject(session),
-                        isActive: self.$isExportViewPresented,
-                        label: {
-                            EmptyView()
-                    })
+            Group {
+                if sessions.isEmpty {
+                    emptyView
+                }
+                else {
+                    List {
+                        ForEach(sessions) { session in
+                            ZStack {
+                                SessionRow(session: session, selectionHandler: { _ in
+                                    self.selectedSession = session.id
+                                })
+                                NavigationLink(
+                                    destination: self.exportView(session: session),
+                                    tag: session.id,
+                                    selection: self.$selectedSession) {
+                                        EmptyView()
+                                }
+                            }
+                        }
+                        .onDelete(perform: delete)
+                    }
                 }
             }
             .navigationBarTitle("Icons")
             .navigationBarItems(trailing: newSessionButton)
-        }
-        .sheet(isPresented: $isGenerateViewPresented) {
-            GenerateView().environmentObject(try! Session())
+            .sheet(isPresented: $isGenerateViewPresented) {
+                return GenerateFlowView().environmentObject(try! Session())
+            }
         }
         .onAppear {
             
+            self.selectedSession = nil
+            self.isExportViewPresented = false
             self.isGenerateViewPresented = false
             
             UINavigationBar.appearance().tintColor = UIColor.label
             UITableView.appearance().backgroundColor = UIColor.systemGroupedBackground
-            UITableViewCell.appearance().backgroundColor = UIColor.systemGroupedBackground
             UITableView.appearance().separatorStyle = .none
             UITableView.appearance().tableFooterView = UIView()
+            UITableViewCell.appearance().backgroundColor = UIColor.systemGroupedBackground
+            UITableViewCell.appearance().selectionStyle = .none
             
             DispatchQueue.main.async {
                 self.sessions = Session.all
@@ -52,13 +65,36 @@ struct MainView: View {
         }
     }
     
+    func exportView(session: Session) -> some View {
+        ExportView(isBackButtonHidden: false)
+            .environmentObject(session)
+            .environmentObject(GenerateFlow())
+    }
+    
+    func delete(indexSet: IndexSet) {
+        indexSet.forEach { index in
+            self.sessions[index].delete()
+        }
+        sessions.remove(atOffsets: indexSet)
+    }
+    
     var emptyView: some View {
-        Button(action: {
+        VStack {
+            Text("No Saved Icons")
+                .font(Font.system(size: 14.0, weight: .medium))
+                .foregroundColor(.secondary)
             
-        }, label: {
-            Text("Create a new App Icon")
-        })
-        .padding()
+            Button(action: {
+                self.isGenerateViewPresented = true
+            }, label: {
+                Text("New App Icon")
+                    .font(Font.system(size: 14.0, weight: .medium))
+                    .padding()
+                    .foregroundColor(Color.secondary)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.secondary, lineWidth: 1))
+            })
+                .padding()
+        }
     }
     
     var newSessionButton: some View {

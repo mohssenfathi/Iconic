@@ -14,6 +14,7 @@ struct GenerateProgressView: View {
     @State private var isLoading: Bool = true
     @State private var isGenerationComplete: Bool = false
     @EnvironmentObject var session: Session
+    @EnvironmentObject var flow: GenerateFlow
 
     private var image: UIImage {
         return session.image
@@ -36,17 +37,16 @@ struct GenerateProgressView: View {
                 .font(Font.system(size: 16.0, weight: .bold))
                 .multilineTextAlignment(.center)
             
-            
             NavigationLink(
-                destination: ExportView(isBackButtonHidden: true),
+                destination: ExportView(),
                 isActive: $isGenerationComplete,
-                label: { Text("") }
+                label: { Text("").hidden() }
             )
             
             Spacer()
         }
-        .navigationBarBackButtonHidden(true)
         .onAppear {
+            self.flow.update(to: .progress)
             self.generateIcons()
         }
         

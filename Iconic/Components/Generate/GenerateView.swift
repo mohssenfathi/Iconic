@@ -8,10 +8,6 @@
 
 import SwiftUI
 
-/*
- <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"     title="Flaticon">www.flaticon.com</a></div>
- */
-
 struct Row: Hashable, Identifiable {
     var id: String { return title }
     let title: String
@@ -20,10 +16,10 @@ struct Row: Hashable, Identifiable {
 struct GenerateView: View {
     
     @EnvironmentObject var session: Session
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    
+    @EnvironmentObject var flow: GenerateFlow
     @State var devices: [Device] = [.iPhone, .iPad, .iMac, .appleTV, .appleWatch]
     @State var showImageSelectorModal: Bool = false
+    var destination: some View = EmptyView()
     
     @State var selections: [Device] = [] {
         didSet {
@@ -74,102 +70,100 @@ struct GenerateView: View {
         NavigationView {
             VStack(spacing: 8) {
                 Spacer()
-                
-                // Image Selection Button
-                Button(action: {
-                    self.showImageSelectorModal = true
-                }, label: {
-                    VStack {
-                        if image == nil {
-                            photoImage
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                        } else {
-                            photoImage
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        }
-
-                    }.padding(photoInsets)
-                })
-                    .frame(width: imageButtonWidth, height: imageButtonWidth)
-                    .clipShape(ImportShape(size: CGSize(width: imageButtonWidth, height: imageButtonWidth), cornerRadius: 20))
-                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
-                    .foregroundColor(.primary)
-                    .sheet(isPresented: $showImageSelectorModal) {
-                        ImagePickerViewController { image in
-                            self.image = image
-                            self.showImageSelectorModal = false
-                        }
-                }
-                
+                imageSelectionButton
                 Spacer()
-                
-                // Info Button
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        
-                    }, label: {
-                        Image(systemName: "info.circle")
-                            .resizable()
-                            .foregroundColor(.primary)
-                            .frame(width: 20, height: 20)
-                    })
-                }.padding(EdgeInsets(top: 0, leading: 30, bottom: 15, trailing: 26))
-                
                 Divider()
-                
-                // Device Selection
-                VStack {
-                    ForEach(self.devices, id: \.self) { device in
-                        MultipleSelectionRow(
-                            title: device.title,
-                            image: device.image,
-                            isSelected: self.selections.contains(device)) {
-                                if self.selections.contains(device) {
-                                    self.selections.removeAll(where: { $0 == device })
-                                }
-                                else {
-                                    self.selections.append(device)
-                                }
-                        }
-                    }
-                }
-                .padding()
-                .foregroundColor(.primary)
-                
-                Divider()
-                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0))
-                
-                // Generate Button
-                NavigationLink(
-                    "Generate Assets",
-                    destination: GenerateProgressView()
-                )
-                    .padding()
-                    .font(.system(size: 16.0, weight: .bold))
-                    .frame(width: nil, height: 40)
-                    .foregroundColor(generateButtonColor)
-                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(generateButtonColor, lineWidth: 2))
-                    .disabled(isGenerateDisabled)
-                
+                deviceSelectionView
+                Divider().padding(EdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0))
+                generateButton
             }
-            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, alignment: .bottom)
-            .navigationBarItems(leading: cancelButton)
-            .onAppear() {
-                self.selections = [.iPhone, .iPad]
-            }
+            .navigationBarTitle(Text(""), displayMode: .inline)
+            .navigationBarHidden(true)
+        }
+        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, alignment: .bottom)
+        .onAppear() {
+            self.flow.update(to: .resourceSelection)
+            self.selections = [.iPhone, .iPad]
         }
     }
     
-    var cancelButton: some View {
+    
+    var imageSelectionButton: some View {
         Button(action: {
-            self.presentationMode.wrappedValue.dismiss()
+            self.showImageSelectorModal = true
         }, label: {
-            Text("Cancel")
+            VStack {
+                if image == nil {
+                    photoImage
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .padding()
+                } else {
+                    photoImage
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                }
+
+            }.padding(photoInsets)
         })
+            .frame(width: imageButtonWidth, height: imageButtonWidth)
+            .clipShape(ImportShape(size: CGSize(width: imageButtonWidth, height: imageButtonWidth), cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
+            .foregroundColor(.primary)
+            .sheet(isPresented: $showImageSelectorModal) {
+                ImagePickerViewController { image in
+                    self.image = image
+                    self.showImageSelectorModal = false
+                }
+        }
+    }
+    
+    var infoButton: some View {
+        HStack {
+            Spacer()
+            Button(action: {
+                
+            }, label: {
+                Image(systemName: "info.circle")
+                    .resizable()
+                    .foregroundColor(.primary)
+                    .frame(width: 20, height: 20)
+            })
+        }.padding(EdgeInsets(top: 0, leading: 30, bottom: 15, trailing: 26))
+        
+    }
+    
+    var deviceSelectionView: some View {
+        VStack {
+            ForEach(self.devices, id: \.self) { device in
+                MultipleSelectionRow(
+                    title: device.title,
+                    image: device.image,
+                    isSelected: self.selections.contains(device)) {
+                        if self.selections.contains(device) {
+                            self.selections.removeAll(where: { $0 == device })
+                        }
+                        else {
+                            self.selections.append(device)
+                        }
+                }
+            }
+        }
+        .padding()
+        .foregroundColor(.primary)
+    }
+    
+    var generateButton: some View {
+        NavigationLink(
+            "Generate Assets",
+            destination: GenerateProgressView()
+        )
+            .padding()
+            .font(.system(size: 16.0, weight: .bold))
+            .frame(width: nil, height: 40)
+            .foregroundColor(generateButtonColor)
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(generateButtonColor, lineWidth: 2))
+            .disabled(isGenerateDisabled)
     }
 }
 
@@ -221,7 +215,10 @@ struct MultipleSelectionRow: View {
 
 
 struct GenerateView_Previews: PreviewProvider {
+    
     static var previews: some View {
         GenerateView()
+            .environmentObject(try! Session())
+            .environmentObject(GenerateFlow())
     }
 }

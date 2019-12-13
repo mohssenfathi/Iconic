@@ -10,27 +10,20 @@ import SwiftUI
 import UIKit
 
 struct ExportView: View {
-    @EnvironmentObject var session: Session
+    
     @State var isShareSheetVisible: Bool = false
-    @State var isDismissAlertPresented: Bool = false
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
+    @EnvironmentObject var session: Session
+    @EnvironmentObject var flow: GenerateFlow
+
     let isBackButtonHidden: Bool
-    
-    init(isBackButtonHidden: Bool = false) {
-        self.isBackButtonHidden = isBackButtonHidden
-    }
     
     var groupedAssets: [String: [IconAsset]] {
         return session.appIconSet.assets.grouped(by: \.assetType.device.title)
     }
     
-    var doneButton: some View {
-        Button(action: {
-            self.isDismissAlertPresented = true
-        }, label: {
-            Text("Done").bold()
-        })
+    init(isBackButtonHidden: Bool = false) {
+        self.isBackButtonHidden = isBackButtonHidden
     }
     
     var body: some View {
@@ -66,51 +59,39 @@ struct ExportView: View {
             
             Divider()
             
-            Button(action: {
-                self.isShareSheetVisible = true
-            }, label: {
-                HStack(spacing: 8) {
-                    Text("Export")
-                        .font(Font.system(size: 18.0, weight: .bold))
-                        .frame(width: nil, height: 40)
-                        .foregroundColor(Color.primary)
-                    
-                    Image(systemName: "square.and.arrow.up")
-                        .foregroundColor(Color.primary)
-                        .font(Font.system(size: 14.0, weight: .semibold))
-                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
-                }
-                .padding(EdgeInsets(top: 12, leading: 0, bottom: 0, trailing: 0))
-            })
-                .sheet(isPresented: $isShareSheetVisible) {
-                    ActivityViewController(activityItems: [self.session.url])
-            }
-            
+            exportButton
         }
         .navigationBarBackButtonHidden(isBackButtonHidden)
-        .navigationBarItems(trailing: doneButton)
         .navigationBarTitle("Export")
-        .actionSheet(isPresented: $isDismissAlertPresented, content: { () -> ActionSheet in
-            ActionSheet(
-                title: Text("Save Session"),
-                message: Text("Would you like to save these assets for later?"),
-                buttons: [
-                    Alert.Button.default(Text("Save"), action: {
-                        try? self.session.save()
-                        self.presentationMode.wrappedValue.dismiss()
-                    }),
-                    Alert.Button.destructive(Text("Delete"), action: {
-                        self.session.delete()
-                        self.presentationMode.wrappedValue.dismiss()
-                    }),
-                    Alert.Button.cancel(Text("Cancel"))
-            ])
+        .onAppear {
+            self.flow.update(to: .export)
+            
+            UITableView.appearance().backgroundColor = UIColor.systemGroupedBackground
+            UITableViewCell.appearance().backgroundColor = UIColor.systemGroupedBackground
+            UITableView.appearance().separatorStyle = .none
+            UITableView.appearance().tableFooterView = UIView()
+        }
+    }
+   
+    var exportButton: some View {
+        Button(action: {
+            self.isShareSheetVisible = true
+        }, label: {
+            HStack(spacing: 8) {
+                Text("Export")
+                    .font(Font.system(size: 18.0, weight: .bold))
+                    .frame(width: nil, height: 40)
+                    .foregroundColor(Color.primary)
+                
+                Image(systemName: "square.and.arrow.up")
+                    .foregroundColor(Color.primary)
+                    .font(Font.system(size: 14.0, weight: .semibold))
+                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
+            }
+            .padding(EdgeInsets(top: 12, leading: 0, bottom: 0, trailing: 0))
         })
-            .onAppear {
-                UITableView.appearance().backgroundColor = UIColor.systemGroupedBackground
-                UITableViewCell.appearance().backgroundColor = UIColor.systemGroupedBackground
-                UITableView.appearance().separatorStyle = .none
-                UITableView.appearance().tableFooterView = UIView()
+            .sheet(isPresented: $isShareSheetVisible) {
+                ActivityViewController(activityItems: [self.session.iconSetUrl])
         }
     }
 }
