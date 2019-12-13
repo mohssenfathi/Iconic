@@ -143,7 +143,11 @@ struct SessionRow: View {
                         Spacer()
                         
                         Image(uiImage: session.thumbnail ?? UIImage())
+                            .resizable()
+                            .frame(width: 80, height: 80)
                             .cornerRadius(4.0)
+                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.secondary, lineWidth: 0.5))
+
                         
                         Image(systemName: "chevron.right")
                             .foregroundColor(Color.secondary)

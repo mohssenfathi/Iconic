@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E009825123A41801009F40C2 /* MockSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = E009825023A41801009F40C2 /* MockSession.swift */; };
 		E054AAFB239B32AF0002DE6B /* GenerateFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E054AAFA239B32AF0002DE6B /* GenerateFlowView.swift */; };
 		E06B2A0D238D92000059326F /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06B2A0C238D92000059326F /* Collection.swift */; };
 		E06B2A10238D9AED0059326F /* ActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06B2A0F238D9AED0059326F /* ActivityViewController.swift */; };
@@ -31,6 +32,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E009825023A41801009F40C2 /* MockSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSession.swift; sourceTree = "<group>"; };
 		E054AAFA239B32AF0002DE6B /* GenerateFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateFlowView.swift; sourceTree = "<group>"; };
 		E06B2A0C238D92000059326F /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		E06B2A0F238D9AED0059326F /* ActivityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewController.swift; sourceTree = "<group>"; };
@@ -68,6 +70,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E009824F23A417F5009F40C2 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				E009825023A41801009F40C2 /* MockSession.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
 		E06B2A0B238D91F80059326F /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -161,6 +171,7 @@
 		E0A8985B2369C33000E8B817 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E009824F23A417F5009F40C2 /* Mocks */,
 				E0A898482369C25500E8B817 /* Assets.xcassets */,
 			);
 			path = Resources;
@@ -280,6 +291,7 @@
 				E0E784A72397130E00170C39 /* UserDefault.swift in Sources */,
 				E0A898432369C25300E8B817 /* AppDelegate.swift in Sources */,
 				E0A8985A2369C31F00E8B817 /* MainView.swift in Sources */,
+				E009825123A41801009F40C2 /* MockSession.swift in Sources */,
 				E0DF12F12396E542009080C1 /* AppIconSet.swift in Sources */,
 				E087957A238B0CD300A11DD7 /* Device.swift in Sources */,
 				E087957F238C327B00A11DD7 /* ImagePickerView.swift in Sources */,

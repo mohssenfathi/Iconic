@@ -61,14 +61,14 @@ class Session: ObservableObject, Identifiable, Hashable {
     }
     
     var thumbnail: UIImage? {
-        return image(for: IconAsset(assetType: .iPhoneSettings, scale: 2))
+        return image(for: IconAsset(assetType: .iPhoneApp, scale: 2))
     }
     
     func image(for asset: IconAsset) -> UIImage? {
         let url = iconSetUrl.appendingPathComponent(asset.filename)
         guard let imageData = try? Data(contentsOf: url),
             let image = UIImage(data: imageData) else {
-                return nil
+                return self.image.resize(to: asset.size)
         }
         return image
     }

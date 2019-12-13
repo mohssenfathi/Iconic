@@ -15,7 +15,7 @@ struct ExportView: View {
     
     @EnvironmentObject var session: Session
     @EnvironmentObject var flow: GenerateFlow
-
+    
     let isBackButtonHidden: Bool
     
     var groupedAssets: [String: [IconAsset]] {
@@ -27,39 +27,48 @@ struct ExportView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                Image(uiImage: session.image)
-                    .resizable()
-                    .frame(width: 150, height: 150)
-                    .clipShape(ImportShape(size: CGSize(width: 150, height: 150), cornerRadius: 20))
-                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
-            }.padding()
-            
-            HStack {
-                Text("Generated \(session.appIconSet.images.count) assets")
-                    .padding()
-                    .font(.system(size: 14.0))
-                    .multilineTextAlignment(.leading)
-                Spacer()
-            }
-            
-            Divider()
-            
-            List {
-                ForEach(Array(groupedAssets.keys).sorted(), id: \.self) { key in
-                    Section(header: Text(key)) {
-                        ForEach(self.groupedAssets[key] ?? []) {
-                            AssetImageRow(asset: $0)
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                
+                HStack {
+                    Image(uiImage: self.session.image)
+                        .resizable()
+                        .frame(width: 150, height: 150)
+                        .clipShape(ImportShape(size: CGSize(width: 150, height: 150), cornerRadius: 20))
+                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
+                    
+                    VStack(alignment: .leading) {
+                        Text("Generated \(self.session.appIconSet.images.count) assets for:")
+                            .padding()
+                            .font(.system(size: 14.0))
+                            .multilineTextAlignment(.leading)
+                        
+                        ForEach(Array(self.session.devices)) {
+                            Text("    • \($0.title)")
+                                .font(.system(size: 12.0))
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
+                }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.3)
+                
+                Divider()
+                
+                List {
+                    ForEach(Array(self.groupedAssets.keys).sorted(), id: \.self) { key in
+                        Section(header: Text(key)) {
+                            ForEach(self.groupedAssets[key] ?? []) {
+                                AssetImageRow(asset: $0)
+                            }
                         }
                     }
                 }
+                .listStyle(GroupedListStyle())
+                
+                
+                Divider()
+                
+                self.exportButton
             }
-            .listStyle(GroupedListStyle())
-            
-            Divider()
-            
-            exportButton
         }
         .navigationBarBackButtonHidden(isBackButtonHidden)
         .navigationBarTitle("Export")
@@ -72,7 +81,7 @@ struct ExportView: View {
             UITableView.appearance().tableFooterView = UIView()
         }
     }
-   
+    
     var exportButton: some View {
         Button(action: {
             self.isShareSheetVisible = true
@@ -135,5 +144,7 @@ struct AssetImageRow: View {
 struct ReviewView_Previews: PreviewProvider {
     static var previews: some View {
         ExportView()
+            .environmentObject(try! Session())
+            .environmentObject(GenerateFlow())
     }
 }
