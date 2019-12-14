@@ -42,9 +42,12 @@ struct MainView: View {
             }
             .navigationBarTitle("Icons")
             .navigationBarItems(trailing: newSessionButton)
-            .sheet(isPresented: $isGenerateViewPresented) {
-                return GenerateFlowView().environmentObject(try! Session())
-            }
+            .sheet(isPresented: $isGenerateViewPresented, onDismiss: {
+                self.sessions = Session.all.sorted(by: \Session.contents.lastModified)
+            }, content: {
+                return GenerateFlowView()
+                    .environmentObject(try! Session())
+            })
         }
         .onAppear {
             
@@ -60,7 +63,7 @@ struct MainView: View {
             UITableViewCell.appearance().selectionStyle = .none
             
             DispatchQueue.main.async {
-                self.sessions = Session.all
+                self.sessions = Session.all.sorted(by: \Session.contents.lastModified)
             }
         }
     }
@@ -111,12 +114,16 @@ struct SessionRow: View {
     let session: Session
     let selectionHandler: (Session) -> ()
     let dateFormatter: DateFormatter
+    let timeFormatter: DateFormatter
     
     init(session: Session, selectionHandler: @escaping (Session) -> ()) {
         self.session = session
         self.dateFormatter = DateFormatter()
+        self.timeFormatter = DateFormatter()
         self.selectionHandler = selectionHandler
         dateFormatter.dateStyle = .medium
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
     }
     
     var body: some View {
@@ -129,9 +136,16 @@ struct SessionRow: View {
                     HStack(spacing: 12.0) {
                         
                         VStack(alignment: .leading, spacing: 8.0) {
-                            Text(dateFormatter.string(from: session.contents.lastModified))
-                                .font(.system(size: 16.0, weight: .semibold))
+                            HStack(alignment: .bottom) {
+                                Text(dateFormatter.string(from: session.contents.lastModified))
+                                    .font(.system(size: 16.0, weight: .semibold))
+                                Text(timeFormatter.string(from: session.contents.lastModified))
+                                    .font(.system(size: 12.0, weight: .regular))
+                                    .offset(x: 0, y: -1)
+                            }
+                            
                             Spacer()
+                            
                             Text("\(session.contents.appIconSet.assets.count) Assets")
                                 .font(.system(size: 12.0, weight: .regular))
                                 .foregroundColor(Color(UIColor.darkGray))

@@ -17,7 +17,7 @@ struct GenerateView: View {
     
     @EnvironmentObject var session: Session
     @EnvironmentObject var flow: GenerateFlow
-    @State var devices: [Device] = [.iPhone, .iPad, .iMac, .appleTV, .appleWatch]
+    @State var devices: [Device] = [.iPhone, .iPad, .mac, .appleWatch, .carPlay]
     @State var showImageSelectorModal: Bool = false
     var destination: some View = EmptyView()
     
@@ -67,20 +67,27 @@ struct GenerateView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 8) {
-                Spacer()
-                imageSelectionButton
-                Spacer()
-                Divider()
-                deviceSelectionView
-                Divider().padding(EdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0))
-                generateButton
+        GeometryReader { geometry in
+            NavigationView {
+                VStack(spacing: 0) {
+                    Spacer()
+                    self.imageSelectionButton
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.3)
+                    Spacer()
+                    Divider()
+                    self.deviceSelectionView
+                    Divider().padding(EdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0))
+                    Spacer()
+                    self.generateButton
+                    Spacer(minLength: 10.0)
+                }
+                .navigationBarTitle(Text(""), displayMode: .inline)
+                .navigationBarHidden(true)
+                .navigationBarBackButtonHidden(true)
+                .background(Color(UIColor.systemGroupedBackground))
+                .edgesIgnoringSafeArea(.bottom)
             }
-            .navigationBarTitle(Text(""), displayMode: .inline)
-            .navigationBarHidden(true)
         }
-        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, alignment: .bottom)
         .onAppear() {
             self.flow.update(to: .resourceSelection)
             self.selections = [.iPhone, .iPad]
@@ -96,20 +103,21 @@ struct GenerateView: View {
                 if image == nil {
                     photoImage
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
+                        .scaledToFit()
                         .padding()
                 } else {
                     photoImage
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio((image?.size.width ?? 1.0) / (image?.size.height ?? 1.0), contentMode: .fill)
                 }
 
             }.padding(photoInsets)
         })
             .frame(width: imageButtonWidth, height: imageButtonWidth)
+            .foregroundColor(.primary)
+            .background(Color(UIColor.systemBackground))
             .clipShape(ImportShape(size: CGSize(width: imageButtonWidth, height: imageButtonWidth), cornerRadius: 20))
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
-            .foregroundColor(.primary)
             .sheet(isPresented: $showImageSelectorModal) {
                 ImagePickerViewController { image in
                     self.image = image
@@ -134,7 +142,7 @@ struct GenerateView: View {
     }
     
     var deviceSelectionView: some View {
-        VStack {
+        VStack(spacing: 12) {
             ForEach(self.devices, id: \.self) { device in
                 MultipleSelectionRow(
                     title: device.title,
@@ -151,6 +159,7 @@ struct GenerateView: View {
         }
         .padding()
         .foregroundColor(.primary)
+        .background(Color(UIColor.systemBackground))
     }
     
     var generateButton: some View {

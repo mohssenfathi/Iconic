@@ -27,10 +27,22 @@ enum AssetType: String, Codable, CustomStringConvertible {
     case iPadApp = "iPad App"
     case iPadProApp = "iPad Pro App"
     
-    //    case appleWatchNotifications
-    //    case appleWatchCompanionNotifications
-    //    case appleWatchHomeScreen
-    //    case appleWatchShortLook
+    case macSmall = "macOS Small"
+    case macMedium = "macOS Medium"
+    case macLarge = "macOS Large"
+    case macXLarge = "macOS Extra Large"
+    case macXXLarge = "macOS Extra Extra Large"
+    
+    case appleWatchNotificationCenter38 = "Apple Watch Notification Center - 38mm"
+    case appleWatchNotificationCenter40 = "Apple Watch Notification Center - 40mm + 42mm"
+    case appleWatchCompanionSettings = "Apple Watch Companion Settings"
+    case appleWatchHomeScreen38 = "Apple Watch Home Screen - 38mm"
+    case appleWatchHomeScreen40 = "Apple Watch Home Screen - 40mm + 42mm"
+    case appleWatchHomeScreen44 = "Apple Watch Home Screen - 44mm"
+    case appleWatchShortLook38 = "Apple Watch Short Look - 38mm"
+    case appleWatchShortLook40 = "Apple Watch Short Look - 40mm + 42mm"
+    case appleWatchShortLook44 = "Apple Watch Short Look - 44mm"
+    case appleWatchAppStore = "Apple Watch App Store"
         
     case carPlay
     
@@ -40,12 +52,18 @@ enum AssetType: String, Codable, CustomStringConvertible {
         switch self {
         case .appStore:
             return "ios-marketing"
+        case .appleWatchAppStore:
+            return "watch-marketing"
         case .carPlay:
             return ""
         case .iPadApp, .iPadNotifications, .iPadProApp, .iPadSettings, .iPadSpotlight:
             return "ipad"
         case .iPhoneApp, .iPhoneNotifications, .iPhoneSettings, .iPhoneSpotlight:
             return "iphone"
+        case .macSmall, .macMedium, .macLarge, .macXLarge, .macXXLarge:
+            return "mac"
+        case .appleWatchNotificationCenter38,  .appleWatchNotificationCenter40,  .appleWatchCompanionSettings,  .appleWatchHomeScreen38,  .appleWatchHomeScreen40,  .appleWatchHomeScreen44,  .appleWatchShortLook38,  .appleWatchShortLook40,  .appleWatchShortLook44:
+            return "watch"
         }
     }
     
@@ -59,6 +77,41 @@ enum AssetType: String, Codable, CustomStringConvertible {
             return .iPad
         case .iPhoneApp, .iPhoneNotifications, .iPhoneSettings, .iPhoneSpotlight:
             return .iPhone
+        case .macSmall, .macMedium, .macLarge, .macXLarge, .macXXLarge:
+            return .mac
+        case .appleWatchNotificationCenter38,  .appleWatchNotificationCenter40,  .appleWatchCompanionSettings,  .appleWatchHomeScreen38,  .appleWatchHomeScreen40,  .appleWatchHomeScreen44,  .appleWatchShortLook38,  .appleWatchShortLook40,  .appleWatchShortLook44, .appleWatchAppStore:
+            return .appleWatch
+        }
+    }
+    
+    
+    var role: String? {
+        switch self {
+        case .appleWatchNotificationCenter38,  .appleWatchNotificationCenter40:
+            return "notificationCenter"
+        case .appleWatchCompanionSettings:
+            return "companionSettings"
+        case .appleWatchHomeScreen38,  .appleWatchHomeScreen40,  .appleWatchHomeScreen44:
+            return "appLauncher"
+        case .appleWatchShortLook38,  .appleWatchShortLook40,  .appleWatchShortLook44:
+            return "quickLook"
+        default:
+            return nil
+        }
+    }
+    
+    var subtype: String? {
+        switch self {
+        case .appleWatchNotificationCenter38, .appleWatchHomeScreen38, .appleWatchShortLook38:
+            return "38mm"
+        case .appleWatchHomeScreen40:
+            return "40mm"
+        case .appleWatchNotificationCenter40, .appleWatchShortLook40:
+            return "42mm"
+        case .appleWatchHomeScreen44, .appleWatchShortLook44:
+            return "44mm"
+        default:
+            return nil
         }
     }
     
@@ -78,6 +131,36 @@ enum AssetType: String, Codable, CustomStringConvertible {
             return CGSize(width: 76, height: 76)
         case .iPadProApp:
             return CGSize(width: 83.5, height: 83.5)
+        case .macSmall:
+            return CGSize(width: 16, height: 16)
+        case .macMedium:
+            return CGSize(width: 32, height: 32)
+        case .macLarge:
+            return CGSize(width: 128, height: 128)
+        case .macXLarge:
+            return CGSize(width: 256, height: 256)
+        case .macXXLarge:
+            return CGSize(width: 512, height: 512)
+        case .appleWatchNotificationCenter38:
+            return CGSize(width: 24, height: 24)
+        case .appleWatchNotificationCenter40:
+            return CGSize(width: 27.5, height: 27.5)
+        case .appleWatchCompanionSettings:
+            return CGSize(width: 29, height: 29)
+        case .appleWatchHomeScreen38:
+            return CGSize(width: 40, height: 40)
+        case .appleWatchHomeScreen40:
+            return CGSize(width: 44, height: 44)
+        case .appleWatchHomeScreen44:
+            return CGSize(width: 50, height: 50)
+        case .appleWatchShortLook38:
+            return CGSize(width: 86, height: 86)
+        case .appleWatchShortLook40:
+            return CGSize(width: 98, height: 98)
+        case .appleWatchShortLook44:
+            return CGSize(width: 108, height: 108)
+        case .appleWatchAppStore:
+            return CGSize(width: 1024, height: 1024)
         }
     }
     
@@ -108,6 +191,14 @@ struct IconAsset: Codable, CustomStringConvertible, Identifiable {
     
     var filename: String {
         return "AppIcon-\(originalSizeString)@\(scaleString).png"
+    }
+    
+    var role: String? {
+        assetType.role
+    }
+    
+    var subtype: String? {
+        assetType.subtype
     }
     
     var description: String {

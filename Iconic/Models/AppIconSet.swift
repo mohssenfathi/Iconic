@@ -24,7 +24,9 @@ struct AppIconSet: Codable {
                 idiom: $0.assetType.idiom,
                 size: $0.originalSizeString,
                 scale: $0.scaleString,
-                filename: $0.filename
+                filename: $0.filename,
+                role: $0.role,
+                subtype: $0.subtype
             )
         })
     }
@@ -43,6 +45,8 @@ struct AppIconSet: Codable {
             let size: String
             let scale: String
             let filename: String
+            let role: String?
+            let subtype: String?
         }
         
         struct Info: Codable {

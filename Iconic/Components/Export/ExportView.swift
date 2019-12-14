@@ -31,11 +31,7 @@ struct ExportView: View {
             VStack(spacing: 0) {
                 
                 HStack {
-                    Image(uiImage: self.session.image)
-                        .resizable()
-                        .frame(width: 150, height: 150)
-                        .clipShape(ImportShape(size: CGSize(width: 150, height: 150), cornerRadius: 20))
-                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
+                    self.imageView
                     
                     VStack(alignment: .leading) {
                         Text("Generated \(self.session.appIconSet.images.count) assets for:")
@@ -71,6 +67,7 @@ struct ExportView: View {
             }
         }
         .navigationBarBackButtonHidden(isBackButtonHidden)
+        .navigationBarHidden(isBackButtonHidden)
         .navigationBarTitle("Export")
         .onAppear {
             self.flow.update(to: .export)
@@ -80,6 +77,15 @@ struct ExportView: View {
             UITableView.appearance().separatorStyle = .none
             UITableView.appearance().tableFooterView = UIView()
         }
+    }
+    
+    var imageView: some View {
+        Image(uiImage: self.session.image)
+            .resizable()
+            .aspectRatio(self.session.image.size.width / self.session.image.size.height, contentMode: .fill)
+            .frame(width: 150, height: 150)
+            .clipShape(ImportShape(size: CGSize(width: 150, height: 150), cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
     }
     
     var exportButton: some View {

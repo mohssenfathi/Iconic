@@ -21,4 +21,10 @@ public extension Collection {
         }
         return groups
     }
+    
+    func sorted<T: Comparable>(by keyPath: KeyPath<Element, T>) -> [Element] {
+        sorted {
+            return $0[keyPath: keyPath] <= $1[keyPath: keyPath]
+        }
+    }
 }
