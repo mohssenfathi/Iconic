@@ -45,6 +45,9 @@ struct GenerateProgressView: View {
             
             Spacer()
         }
+        .navigationBarTitle(Text(""), displayMode: .inline)
+        .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
         .onAppear {
             self.flow.update(to: .progress)
             self.generateIcons()

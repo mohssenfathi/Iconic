@@ -209,6 +209,15 @@ extension Session {
         
         return sessions
     }
+    
+    /// Searches through saved sessions and removes any with missing assets
+    static func prune() {
+        Session.all.filter {
+            $0.appIconSet.assets.isEmpty
+        }.forEach {
+            $0.delete()
+        }
+    }
 }
 
 extension Session {

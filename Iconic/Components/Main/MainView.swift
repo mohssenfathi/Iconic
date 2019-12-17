@@ -43,7 +43,7 @@ struct MainView: View {
             .navigationBarTitle("Icons")
             .navigationBarItems(trailing: newSessionButton)
             .sheet(isPresented: $isGenerateViewPresented, onDismiss: {
-                self.sessions = Session.all.sorted(by: \Session.contents.lastModified)
+                self.reload()
             }, content: {
                 return GenerateFlowView()
                     .environmentObject(try! Session())
@@ -63,15 +63,21 @@ struct MainView: View {
             UITableViewCell.appearance().selectionStyle = .none
             
             DispatchQueue.main.async {
-                self.sessions = Session.all.sorted(by: \Session.contents.lastModified)
+                self.reload()
             }
         }
+    }
+    
+    func reload() {
+        Session.prune()
+        sessions = Session.all.sorted(by: \Session.contents.lastModified)
     }
     
     func exportView(session: Session) -> some View {
         ExportView(isBackButtonHidden: false)
             .environmentObject(session)
             .environmentObject(GenerateFlow())
+            .navigationBarTitle("Export")
     }
     
     func delete(indexSet: IndexSet) {

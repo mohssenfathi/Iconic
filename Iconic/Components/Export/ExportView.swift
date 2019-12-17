@@ -68,7 +68,6 @@ struct ExportView: View {
         }
         .navigationBarBackButtonHidden(isBackButtonHidden)
         .navigationBarHidden(isBackButtonHidden)
-        .navigationBarTitle("Export")
         .onAppear {
             self.flow.update(to: .export)
             

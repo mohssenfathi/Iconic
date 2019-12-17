@@ -15,10 +15,21 @@ struct Row: Hashable, Identifiable {
 
 struct GenerateView: View {
     
+    enum Modal {
+        case photoSelector
+        case fileSelector
+        case help
+        case none
+    }
+    
     @EnvironmentObject var session: Session
     @EnvironmentObject var flow: GenerateFlow
     @State var devices: [Device] = [.iPhone, .iPad, .mac, .appleWatch, .carPlay]
-    @State var showImageSelectorModal: Bool = false
+    
+    @State var showModal: Bool = false
+    @State var showDocumentSelectorAlert: Bool = false
+    @State var modal: Modal = .none
+    
     var destination: some View = EmptyView()
     
     @State var selections: [Device] = [] {
@@ -74,6 +85,7 @@ struct GenerateView: View {
                     self.imageSelectionButton
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.3)
                     Spacer()
+                    self.helpButton
                     Divider()
                     self.deviceSelectionView
                     Divider().padding(EdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0))
@@ -86,9 +98,35 @@ struct GenerateView: View {
                 .navigationBarBackButtonHidden(true)
                 .background(Color(UIColor.systemGroupedBackground))
                 .edgesIgnoringSafeArea(.bottom)
+                .actionSheet(isPresented: self.$showDocumentSelectorAlert, content: {
+                    self.documentSelectionAlertSheet
+                })
+                .sheet(isPresented: self.$showModal, content: {
+                    if self.modal == .photoSelector {
+                        ImagePickerViewController { image in
+                            self.image = image
+                            self.showModal = false
+                            self.modal = .none
+                        }
+                    } else if self.modal == .fileSelector {
+                        DocumentPickerViewController { image in
+                            self.image = image
+                            self.showModal = false
+                            self.modal = .none
+                        }
+                    } else if self.modal == .help {
+                        GenerateHelpView()
+                    } else {
+                        Text("")
+                    }
+                })
             }
         }
         .onAppear() {
+            self.showModal = false
+            self.showDocumentSelectorAlert = false
+            self.modal = .none
+            
             self.flow.update(to: .resourceSelection)
             self.selections = [.iPhone, .iPad]
         }
@@ -97,7 +135,7 @@ struct GenerateView: View {
     
     var imageSelectionButton: some View {
         Button(action: {
-            self.showImageSelectorModal = true
+            self.showDocumentSelectorAlert = true
         }, label: {
             VStack {
                 if image == nil {
@@ -110,7 +148,7 @@ struct GenerateView: View {
                         .resizable()
                         .aspectRatio((image?.size.width ?? 1.0) / (image?.size.height ?? 1.0), contentMode: .fill)
                 }
-
+                
             }.padding(photoInsets)
         })
             .frame(width: imageButtonWidth, height: imageButtonWidth)
@@ -118,21 +156,16 @@ struct GenerateView: View {
             .background(Color(UIColor.systemBackground))
             .clipShape(ImportShape(size: CGSize(width: imageButtonWidth, height: imageButtonWidth), cornerRadius: 20))
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
-            .sheet(isPresented: $showImageSelectorModal) {
-                ImagePickerViewController { image in
-                    self.image = image
-                    self.showImageSelectorModal = false
-                }
-        }
     }
     
-    var infoButton: some View {
+    var helpButton: some View {
         HStack {
             Spacer()
             Button(action: {
-                
+                self.modal = .help
+                self.showModal = true
             }, label: {
-                Image(systemName: "info.circle")
+                Image(systemName: "questionmark.circle")
                     .resizable()
                     .foregroundColor(.primary)
                     .frame(width: 20, height: 20)
@@ -173,6 +206,23 @@ struct GenerateView: View {
             .foregroundColor(generateButtonColor)
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(generateButtonColor, lineWidth: 2))
             .disabled(isGenerateDisabled)
+    }
+    
+    var documentSelectionAlertSheet: ActionSheet {
+        ActionSheet(
+            title: Text("Select Image From"),
+            message: nil,
+            buttons: [
+                Alert.Button.default(Text("Photo Library"), action: {
+                    self.modal = .photoSelector
+                    self.showModal = true
+                }),
+                Alert.Button.default(Text("Files"), action: {
+                    self.modal = .fileSelector
+                    self.showModal = true
+                }),
+                Alert.Button.cancel(Text("Cancel"))
+        ])
     }
 }
 
@@ -231,3 +281,4 @@ struct GenerateView_Previews: PreviewProvider {
             .environmentObject(GenerateFlow())
     }
 }
+
