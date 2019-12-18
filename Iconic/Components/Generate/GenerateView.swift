@@ -47,9 +47,11 @@ struct GenerateView: View {
             self.error = session.validate(image: image)
             guard let image = image else { return }
             session.image = image
+            thumbnail = image.resize(to: CGSize(width: 50, height: 50))
         }
     }
     
+    @State var thumbnail: UIImage?
     let imageButtonWidth: CGFloat = 160.0
     
     var generateButtonColor: Color {
@@ -65,18 +67,7 @@ struct GenerateView: View {
         return image != nil
     }
     
-    var photoImage: Image {
-        guard let image = self.image else {
-            return Image("add_image")
-        }
-        return Image(uiImage: image)
-            .renderingMode(.original)
-    }
-    
     var photoInsets: EdgeInsets {
-        guard image == nil else {
-            return EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-        }
         return EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
     }
     
@@ -86,8 +77,12 @@ struct GenerateView: View {
                 VStack(spacing: 0) {
                     Group {
                         Spacer()
-                        self.imageSelectionButton
-                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.3)
+                        
+                        ZStack {
+                            self.currentImageButton
+                            self.selectImageButton
+                        }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.3)
+                        
                         if self.error != nil {
                             self.errorText
                         }
@@ -149,31 +144,48 @@ struct GenerateView: View {
         }.padding()
     }
     
+    var currentImageButton: some View {
+        Button(action: {
+            self.showDocumentSelectorAlert = true
+        }, label: {
+            Image(uiImage: image ?? UIImage())
+            .renderingMode(.original)
+            .resizable()
+            .aspectRatio((image?.size.width ?? 1.0) / (image?.size.height ?? 1.0), contentMode: .fill)
+        })
+            .frame(width: imageButtonWidth, height: imageButtonWidth)
+            .foregroundColor(.primary)
+            .background(Color(UIColor.systemBackground))
+            .clipShape(ImportShape(size: CGSize(width: imageButtonWidth, height: imageButtonWidth), cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
+    }
     
-    var imageSelectionButton: some View {
-        VStack {
-            Button(action: {
-                self.showDocumentSelectorAlert = true
-            }, label: {
+    var selectImageButton: some View {
+        Button(action: {
+            self.showDocumentSelectorAlert = true
+        }, label: {
+            if image == nil {
+                Image("add_image")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 80, height: 80)
+                    .foregroundColor(.primary)
+            } else {
                 VStack {
-                    if image == nil {
-                        photoImage
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Image(systemName: "arrow.2.circlepath.circle.fill")
                             .resizable()
                             .scaledToFit()
-                            .padding()
-                    } else {
-                        photoImage
-                            .resizable()
-                            .aspectRatio((image?.size.width ?? 1.0) / (image?.size.height ?? 1.0), contentMode: .fill)
+                            .frame(width: 30, height: nil, alignment: .bottomTrailing)
+                            .padding(EdgeInsets(top: 12, leading: 12, bottom: 8, trailing: 8))
+                            .foregroundColor((thumbnail?.isDark ?? false) ? Color(UIColor.systemBackground).opacity(0.8) : Color.primary.opacity(0.8))
                     }
-                }.padding(photoInsets)
-            })
+                }
                 .frame(width: imageButtonWidth, height: imageButtonWidth)
-                .foregroundColor(.primary)
-                .background(Color(UIColor.systemBackground))
-                .clipShape(ImportShape(size: CGSize(width: imageButtonWidth, height: imageButtonWidth), cornerRadius: 20))
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
-        }
+            }
+        })
     }
     
     var helpButton: some View {

@@ -106,6 +106,11 @@ struct Help {
                 title: "Do I need to add a corner radius to my input image?",
                 detail: "No. A mask will be applied to your app icon's once they are imported into Xcode. Supplying a square image is expected."
             ),
+            
+            HelpItem.text(
+                title: "Why is my input image is not centered in the app icon preview?",
+                detail: "The supplied image will be modified to fill the app icon space and be will cropped to a 1:1 aspect ratio. If you would like a specific portion of the image to be visible in the app icon it will need to be cropped before import."
+            ),
         ],
         
         "Output" : [
@@ -147,6 +152,7 @@ struct Help {
                 view: AnyView(
                     VStack(spacing: 12) {
                         Text("For more information see Apple's Human Interface Guidelines regarging App Icons.")
+                            .lineLimit(nil)
                         Button(action: {
                             Links.open(link: .appIconHIG)
                         }, label: {
