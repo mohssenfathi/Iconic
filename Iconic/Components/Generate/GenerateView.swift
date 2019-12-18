@@ -25,6 +25,7 @@ struct GenerateView: View {
     @EnvironmentObject var session: Session
     @EnvironmentObject var flow: GenerateFlow
     @State var devices: [Device] = [.iPhone, .iPad, .mac, .appleWatch, .carPlay]
+    @State var error: Error?
     
     @State var showModal: Bool = false
     @State var showDocumentSelectorAlert: Bool = false
@@ -43,6 +44,7 @@ struct GenerateView: View {
     
     @State var image: UIImage? {
         didSet {
+            self.error = session.validate(image: image)
             guard let image = image else { return }
             session.image = image
         }
@@ -55,6 +57,7 @@ struct GenerateView: View {
     }
     
     var isGenerateDisabled: Bool {
+        guard error == nil else { return true }
         return image == nil || selections.isEmpty
     }
     
@@ -81,11 +84,15 @@ struct GenerateView: View {
         GeometryReader { geometry in
             NavigationView {
                 VStack(spacing: 0) {
-                    Spacer()
-                    self.imageSelectionButton
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.3)
-                    Spacer()
-                    self.helpButton
+                    Group {
+                        Spacer()
+                        self.imageSelectionButton
+                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.3)
+                        if self.error != nil {
+                            self.errorText
+                        }
+                        self.helpButton
+                    }
                     Divider()
                     self.deviceSelectionView
                     Divider().padding(EdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0))
@@ -132,30 +139,41 @@ struct GenerateView: View {
         }
     }
     
+    var errorText: some View {
+        VStack(alignment: .center) {
+         Text((error as? SessionError)?.localizedDescription ?? "")
+            .foregroundColor(Color(UIColor.systemRed))
+            .font(Font.system(size: 14.0, weight: .regular))
+            .lineLimit(nil)
+            .multilineTextAlignment(.center)
+        }.padding()
+    }
+    
     
     var imageSelectionButton: some View {
-        Button(action: {
-            self.showDocumentSelectorAlert = true
-        }, label: {
-            VStack {
-                if image == nil {
-                    photoImage
-                        .resizable()
-                        .scaledToFit()
-                        .padding()
-                } else {
-                    photoImage
-                        .resizable()
-                        .aspectRatio((image?.size.width ?? 1.0) / (image?.size.height ?? 1.0), contentMode: .fill)
-                }
-                
-            }.padding(photoInsets)
-        })
-            .frame(width: imageButtonWidth, height: imageButtonWidth)
-            .foregroundColor(.primary)
-            .background(Color(UIColor.systemBackground))
-            .clipShape(ImportShape(size: CGSize(width: imageButtonWidth, height: imageButtonWidth), cornerRadius: 20))
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
+        VStack {
+            Button(action: {
+                self.showDocumentSelectorAlert = true
+            }, label: {
+                VStack {
+                    if image == nil {
+                        photoImage
+                            .resizable()
+                            .scaledToFit()
+                            .padding()
+                    } else {
+                        photoImage
+                            .resizable()
+                            .aspectRatio((image?.size.width ?? 1.0) / (image?.size.height ?? 1.0), contentMode: .fill)
+                    }
+                }.padding(photoInsets)
+            })
+                .frame(width: imageButtonWidth, height: imageButtonWidth)
+                .foregroundColor(.primary)
+                .background(Color(UIColor.systemBackground))
+                .clipShape(ImportShape(size: CGSize(width: imageButtonWidth, height: imageButtonWidth), cornerRadius: 20))
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
+        }
     }
     
     var helpButton: some View {

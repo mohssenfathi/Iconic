@@ -236,6 +236,41 @@ extension Session {
 
 enum SessionError: Error {
     case imageTooSmall
+    case imageContainsTransparency
     case imageResize
     case notFound
+    case unknown
+    
+    var localizedDescription: String {
+        switch self {
+        case .imageTooSmall:
+            return "Image too small. Input images must have a size of 1024px x 1024px or greater."
+        case .imageContainsTransparency:
+            return "Input images cannot have transparency."
+        case .imageResize:
+            return "There was an issue resizing the provided image."
+        case .unknown:
+            return "An unknown error occurred. Please try again."
+        case .notFound:
+            return "There was an issue importing the selected image. Please try again."
+        }
+    }
 }
+
+extension Session {
+    
+    func validate(image: UIImage?) -> Error? {
+        guard let image = image else {
+            return SessionError.notFound
+        }
+        
+        guard image.size.width > 1024.0,
+            image.size.height > 1024.0 else {
+                return SessionError.imageTooSmall
+        }
+        return nil
+    }
+    
+}
+
+
