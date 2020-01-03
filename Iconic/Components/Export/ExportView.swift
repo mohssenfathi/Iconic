@@ -50,17 +50,17 @@ struct ExportView: View {
                             .multilineTextAlignment(.leading)
                             .padding()
                         
-                        Text("Devices")
-                            .underline()
+                        Text("Devices:")
                             .font(.system(size: 12.0))
+                            .bold()
                             .multilineTextAlignment(.leading)
                             .padding([.leading])
+                            .padding([.bottom], 3.0)
                         
                         ForEach(Array(self.session.devices)) {
-                            Text("• \($0.title)")
+                            Text(" • \($0.title)")
                                 .font(.system(size: 12.0))
                                 .multilineTextAlignment(.leading)
-                                .foregroundColor(.secondary)
                                 .padding([.leading])
                         }
                     }
@@ -212,7 +212,10 @@ struct AssetImageRow: View {
 
 struct ReviewView_Previews: PreviewProvider {
     static var previews: some View {
-        ExportView()
-            .environmentObject(GenerateFlow())
+        let session = try! Session()
+        session.devices = [.iPad, .iPhone, .appStore]
+        
+        return ExportView()
+            .environmentObject(GenerateFlow(session: session))
     }
 }
