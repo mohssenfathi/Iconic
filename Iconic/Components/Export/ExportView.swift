@@ -45,22 +45,30 @@ struct ExportView: View {
                     
                     VStack(alignment: .leading) {
                         Text("\(self.session.appIconSet.images.count) Assets")
-                            .padding()
-                            .font(.system(size: 14.0))
+                            .bold()
+                            .font(.system(size: 16.0))
                             .multilineTextAlignment(.leading)
+                            .padding()
+                        
+                        Text("Devices")
+                            .underline()
+                            .font(.system(size: 12.0))
+                            .multilineTextAlignment(.leading)
+                            .padding([.leading])
                         
                         ForEach(Array(self.session.devices)) {
-                            Text("    • \($0.title)")
+                            Text("• \($0.title)")
                                 .font(.system(size: 12.0))
                                 .multilineTextAlignment(.leading)
-                                    .foregroundColor(.secondary)
+                                .foregroundColor(.secondary)
+                                .padding([.leading])
                         }
                     }
                     
                     Spacer()
                 }
                 .padding([.leading, .trailing])
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.25)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.22)
                 
                 HStack {
                      Text("Created \(self.dateFormatter.string(from: self.session.contents.dateCreated)) at \(self.timeFormatter.string(from: self.session.contents.dateCreated))")
