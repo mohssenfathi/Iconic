@@ -14,16 +14,17 @@ struct MainView: View {
     @State var isExportViewPresented: Bool = false
     @State var sessions: [Session] = []
     @State var selectedSession: Session.ID?
+    @ObservedObject var generateFlow: GenerateFlow = GenerateFlow()
     
     var body: some View {
         NavigationView {
             Group {
-                if sessions.isEmpty {
-                    emptyView
+                if self.sessions.isEmpty {
+                    self.emptyView
                 }
                 else {
                     List {
-                        ForEach(sessions) { session in
+                        ForEach(self.sessions) { session in
                             ZStack {
                                 SessionRow(session: session, selectionHandler: { _ in
                                     self.selectedSession = session.id
@@ -36,18 +37,18 @@ struct MainView: View {
                                 }
                             }
                         }
-                        .onDelete(perform: delete)
+                        .onDelete(perform: self.delete)
                     }
                 }
             }
-            .navigationBarTitle("Icons")
-            .navigationBarItems(trailing: newSessionButton)
-            .sheet(isPresented: $isGenerateViewPresented, onDismiss: {
+            .sheet(isPresented: self.$isGenerateViewPresented, onDismiss: {
                 self.reload()
             }, content: {
-                return GenerateFlowView()
-                    .environmentObject(try! Session())
+                GenerateFlowView()
+                    .environmentObject(self.generateFlow)
             })
+                .navigationBarTitle("Icons")
+                .navigationBarItems(trailing: self.newSessionButton)
         }
         .onAppear {
             
@@ -66,6 +67,7 @@ struct MainView: View {
                 self.reload()
             }
         }
+        .background(Color.red)
     }
     
     func reload() {
@@ -75,9 +77,8 @@ struct MainView: View {
     
     func exportView(session: Session) -> some View {
         ExportView(isBackButtonHidden: false)
-            .environmentObject(session)
-            .environmentObject(GenerateFlow())
-            .navigationBarTitle("Export")
+            .environmentObject(GenerateFlow(session: session))
+            .navigationBarTitle("", displayMode: .inline)
     }
     
     func delete(indexSet: IndexSet) {
@@ -117,12 +118,12 @@ struct MainView: View {
 }
 
 struct SessionRow: View {
-    let session: Session
-    let selectionHandler: (Session) -> ()
+    let session: SessionProtocol
+    let selectionHandler: (SessionProtocol) -> ()
     let dateFormatter: DateFormatter
     let timeFormatter: DateFormatter
     
-    init(session: Session, selectionHandler: @escaping (Session) -> ()) {
+    init(session: Session, selectionHandler: @escaping (SessionProtocol) -> ()) {
         self.session = session
         self.dateFormatter = DateFormatter()
         self.timeFormatter = DateFormatter()
@@ -142,23 +143,21 @@ struct SessionRow: View {
                     HStack(spacing: 12.0) {
                         
                         VStack(alignment: .leading, spacing: 8.0) {
-                            HStack(alignment: .bottom) {
-                                Text(dateFormatter.string(from: session.contents.lastModified))
-                                    .font(.system(size: 16.0, weight: .semibold))
-                                Text(timeFormatter.string(from: session.contents.lastModified))
-                                    .font(.system(size: 12.0, weight: .regular))
-                                    .offset(x: 0, y: -1)
-                            }
                             
-                            Spacer()
+                            Text(session.title)
+                                .font(Font.system(size: 26.0, weight: .bold))
+                                .foregroundColor(.primary)
                             
                             Text("\(session.contents.appIconSet.assets.count) Assets")
                                 .font(.system(size: 12.0, weight: .regular))
-                                .foregroundColor(Color(UIColor.darkGray))
+                                .foregroundColor(Color(UIColor.secondaryLabel))
                             
                             Text(Array(session.devices).map { $0.title }.joined(separator: ", "))
                                 .font(.system(size: 12.0, weight: .regular))
-                                .foregroundColor(Color(UIColor.darkGray))
+                                .foregroundColor(Color(UIColor.secondaryLabel))
+                            
+                            Text("\(dateFormatter.string(from: session.contents.dateCreated)), \(timeFormatter.string(from: session.contents.dateCreated))")
+                                .font(.system(size: 12.0, weight: .regular))
                         }
                         Spacer()
                         
@@ -167,7 +166,7 @@ struct SessionRow: View {
                             .frame(width: 80, height: 80)
                             .cornerRadius(4.0)
                             .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.secondary, lineWidth: 0.5))
-
+                        
                         
                         Image(systemName: "chevron.right")
                             .foregroundColor(Color.secondary)
@@ -201,5 +200,6 @@ struct CardCellStyle: ButtonStyle {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         MainView()
+            .previewDevice(PreviewDevice(rawValue: "iPad Pro"))
     }
 }

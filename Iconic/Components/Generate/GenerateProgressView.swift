@@ -13,8 +13,9 @@ struct GenerateProgressView: View {
     @State private var progress: CGFloat = 0.0
     @State private var isLoading: Bool = true
     @State private var isGenerationComplete: Bool = false
-    @EnvironmentObject var session: Session
     @EnvironmentObject var flow: GenerateFlow
+    
+    var session: Session { flow.session }
 
     private var image: UIImage {
         return session.image
@@ -23,10 +24,6 @@ struct GenerateProgressView: View {
     var body: some View {
         VStack(spacing: 12) {
             Spacer()
-            
-            Text("Generating icons...")
-                .font(Font.system(size: 16.0, weight: .semibold))
-                .multilineTextAlignment(.center)
             
             ProgressView(progress: progress, backgroundColor: Color.gray.opacity(0.5))
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 10.0)

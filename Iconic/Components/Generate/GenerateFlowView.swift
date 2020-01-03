@@ -11,6 +11,18 @@ import Combine
 
 class GenerateFlow: ObservableObject {
     
+    @Published var isCancelButtonEnabled: Bool = true
+    @Published var isDoneButtonEnabled: Bool = false
+    @Published var title: String = ""
+    @Published var isDismissAlertPresented: Bool = false
+    @Published var preventDismissal: Bool = false
+    @Published var session: Session
+//    @Published var dismissalAttempted: Bool = false
+    
+    init(session: Session? = nil) {
+        self.session = session ?? (try! Session())
+    }
+    
     let didChange = PassthroughSubject<GenerateFlow, Never>()
     
     var stage: Stage = .resourceSelection {
@@ -30,37 +42,19 @@ class GenerateFlow: ObservableObject {
 
 struct GenerateFlowView: View {
     
-    struct UIState {
-        let isCancelButtonEnabled: Bool
-        let isDoneButtonEnabled: Bool
-        let title: String
-    }
-    
-    @EnvironmentObject var session: Session
+    @EnvironmentObject var flow: GenerateFlow
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @State var uiState = UIState(isCancelButtonEnabled: true, isDoneButtonEnabled: false, title: "Select Image")
-    @State var isDismissAlertPresented: Bool = false
-    
-    var flow: GenerateFlow = GenerateFlow()
     
     var body: some View {
         NavigationView {
             Group {
-    //            HStack {
-    //                cancelButton
-    //                Spacer()
-    //                doneButton
-    //            }
-    //            .padding(EdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16))
-                
                 GenerateView()
-                    .environmentObject(session)
                     .environmentObject(flow)
-                    .actionSheet(isPresented: $isDismissAlertPresented, content: {
+                    .actionSheet(isPresented: $flow.isDismissAlertPresented, content: {
                         self.saveActionSheet
                     })
             }
-            .navigationBarTitle(Text(uiState.title), displayMode: .inline)
+            .navigationBarTitle(Text(flow.title), displayMode: .inline)
             .navigationBarItems(leading: cancelButton, trailing: doneButton)
         }
         .onReceive(flow.didChange) { subject in
@@ -71,11 +65,20 @@ struct GenerateFlowView: View {
     func updateState(_ stage: GenerateFlow.Stage) {
         switch stage {
         case .resourceSelection:
-            self.uiState = UIState(isCancelButtonEnabled: true, isDoneButtonEnabled: false, title: "Select Image")
+            flow.isCancelButtonEnabled = true
+            flow.isDoneButtonEnabled = false
+            flow.preventDismissal = true
+            flow.title = "Select Image"
         case .progress:
-            self.uiState = UIState(isCancelButtonEnabled: false, isDoneButtonEnabled: false, title: "")
+            flow.isCancelButtonEnabled = false
+            flow.isDoneButtonEnabled = false
+            flow.preventDismissal = true
+            flow.title = "Generating Icons..."
         case .export:
-            self.uiState = UIState(isCancelButtonEnabled: false, isDoneButtonEnabled: true, title: "Export")
+            flow.isCancelButtonEnabled = false
+            flow.isDoneButtonEnabled = true
+            flow.preventDismissal = true
+            flow.title = ""
         }
     }
     
@@ -87,18 +90,18 @@ struct GenerateFlowView: View {
                 .foregroundColor(.primary)
                 .bold()
         })
-            .isHidden(!uiState.isCancelButtonEnabled)
+            .isHidden(!flow.isCancelButtonEnabled)
     }
     
     var doneButton: some View {
         Button(action: {
-            self.isDismissAlertPresented = true
+            self.flow.isDismissAlertPresented = true
         }, label: {
             return Text("Done")
                 .foregroundColor(.primary)
                 .bold()
         })
-            .isHidden(!uiState.isDoneButtonEnabled)
+            .isHidden(!flow.isDoneButtonEnabled)
     }
     
     
@@ -108,11 +111,11 @@ struct GenerateFlowView: View {
             message: Text("Would you like to save these assets for later?"),
             buttons: [
                 Alert.Button.default(Text("Save"), action: {
-                    try? self.session.save()
+                    try? self.flow.session.save()
                     self.presentationMode.wrappedValue.dismiss()
                 }),
                 Alert.Button.destructive(Text("Delete"), action: {
-                    self.session.delete()
+                    self.flow.session.delete()
                     self.presentationMode.wrappedValue.dismiss()
                 }),
                 Alert.Button.cancel(Text("Cancel"))
@@ -123,6 +126,5 @@ struct GenerateFlowView: View {
 struct GenerateFlowView_Previews: PreviewProvider {
     static var previews: some View {
         return GenerateFlowView()
-            .environmentObject(try! Session())
     }
 }

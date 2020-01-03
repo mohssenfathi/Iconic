@@ -22,7 +22,6 @@ struct GenerateView: View {
         case none
     }
     
-    @EnvironmentObject var session: Session
     @EnvironmentObject var flow: GenerateFlow
     @State var devices: [Device] = [.iPhone, .iPad, .mac, .appleWatch, .carPlay]
     @State var error: Error?
@@ -31,9 +30,10 @@ struct GenerateView: View {
     @State var showDocumentSelectorAlert: Bool = false
     @State var modal: Modal = .none
     
+    var session: Session { flow.session }
     var destination: some View = EmptyView()
     
-    @State var selections: [Device] = [] {
+    @State var selections: [Device] = [.iPhone, .iPad, .appStore] {
         didSet {
             // Generate assets for selected devices, plus required ones
             var set = Set<Device>(selections)
@@ -128,9 +128,8 @@ struct GenerateView: View {
             self.showModal = false
             self.showDocumentSelectorAlert = false
             self.modal = .none
-            
             self.flow.update(to: .resourceSelection)
-            self.selections = [.iPhone, .iPad]
+            self.session.devices = Set<Device>(self.selections)
         }
     }
     
@@ -307,7 +306,6 @@ struct GenerateView_Previews: PreviewProvider {
     
     static var previews: some View {
         GenerateView()
-            .environmentObject(try! Session())
             .environmentObject(GenerateFlow())
     }
 }

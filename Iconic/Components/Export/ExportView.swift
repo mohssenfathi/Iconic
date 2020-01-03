@@ -13,10 +13,13 @@ struct ExportView: View {
     
     @State var isShareSheetVisible: Bool = false
     
-    @EnvironmentObject var session: Session
     @EnvironmentObject var flow: GenerateFlow
     
     let isBackButtonHidden: Bool
+    let dateFormatter: DateFormatter
+    let timeFormatter: DateFormatter
+    
+    var session: Session { flow.session }
     
     var groupedAssets: [String: [IconAsset]] {
         return session.appIconSet.assets.grouped(by: \.assetType.device.title)
@@ -24,17 +27,24 @@ struct ExportView: View {
     
     init(isBackButtonHidden: Bool = false) {
         self.isBackButtonHidden = isBackButtonHidden
+        self.dateFormatter = DateFormatter()
+        self.timeFormatter = DateFormatter()
+        
+        dateFormatter.dateStyle = .medium
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
     }
     
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
+                self.titleField
                 
                 HStack {
-                    self.imageView
+                    self.imageView(width: geometry.size.height * 0.25 - 40)
                     
                     VStack(alignment: .leading) {
-                        Text("Generated \(self.session.appIconSet.images.count) assets for:")
+                        Text("\(self.session.appIconSet.images.count) Assets")
                             .padding()
                             .font(.system(size: 14.0))
                             .multilineTextAlignment(.leading)
@@ -43,9 +53,24 @@ struct ExportView: View {
                             Text("    • \($0.title)")
                                 .font(.system(size: 12.0))
                                 .multilineTextAlignment(.leading)
+                                    .foregroundColor(.secondary)
                         }
                     }
-                }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.3)
+                    
+                    Spacer()
+                }
+                .padding([.leading, .trailing])
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: geometry.size.height * 0.25)
+                
+                HStack {
+                     Text("Created \(self.dateFormatter.string(from: self.session.contents.dateCreated)) at \(self.timeFormatter.string(from: self.session.contents.dateCreated))")
+                        .padding()
+                        .font(.system(size: 12.0))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.leading)
+                    
+                    Spacer()
+                }
                 
                 Divider()
                 
@@ -59,7 +84,6 @@ struct ExportView: View {
                     }
                 }
                 .listStyle(GroupedListStyle())
-                
                 
                 Divider()
                 
@@ -76,14 +100,46 @@ struct ExportView: View {
             UITableView.appearance().separatorStyle = .none
             UITableView.appearance().tableFooterView = UIView()
         }
+        .onDisappear {
+            try? self.session.save()
+        }
     }
     
-    var imageView: some View {
+    var titleField: some View {
+        Group {
+            HStack {
+                ZStack {
+                    TextField("App Icon Name", text: $flow.session.title, onEditingChanged: { changed in
+                        
+                    }, onCommit: {
+                        
+                    })
+                    .keyboardType(.default)
+                    .font(Font.system(size: 30.0, weight: .bold))
+                
+                    HStack {
+                        Spacer()
+                        Image(systemName: "pencil.circle.fill")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .foregroundColor(.secondary)
+                            .disabled(true)
+                    }.padding()
+                }
+                .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 4))
+                .background(Color(UIColor.systemGroupedBackground).opacity(0.75))
+                .cornerRadius(10.0)
+            }
+            .padding()
+        }
+    }
+    
+    func imageView(width: CGFloat) -> some View {
         Image(uiImage: self.session.image)
             .resizable()
             .aspectRatio(self.session.image.size.width / self.session.image.size.height, contentMode: .fill)
-            .frame(width: 150, height: 150)
-            .clipShape(ImportShape(size: CGSize(width: 150, height: 150), cornerRadius: 20))
+            .frame(width: width, height: width)
+            .clipShape(ImportShape(size: CGSize(width: width, height: width), cornerRadius: 20))
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.gray, lineWidth: 1))
     }
     
@@ -149,7 +205,6 @@ struct AssetImageRow: View {
 struct ReviewView_Previews: PreviewProvider {
     static var previews: some View {
         ExportView()
-            .environmentObject(try! Session())
             .environmentObject(GenerateFlow())
     }
 }
