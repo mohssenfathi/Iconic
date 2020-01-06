@@ -42,8 +42,12 @@ class GenerateFlow: ObservableObject {
 
 struct GenerateFlowView: View {
     
-    @EnvironmentObject var flow: GenerateFlow
+    @ObservedObject var flow: GenerateFlow
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    
+    init(session: Session? = nil) {
+        self.flow = GenerateFlow(session: session)
+    }
     
     var body: some View {
         NavigationView {

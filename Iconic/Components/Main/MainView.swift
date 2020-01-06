@@ -14,7 +14,6 @@ struct MainView: View {
     @State var isExportViewPresented: Bool = false
     @State var sessions: [Session] = []
     @State var selectedSession: Session.ID?
-    @ObservedObject var generateFlow: GenerateFlow = GenerateFlow()
     
     var body: some View {
         NavigationView {
@@ -45,7 +44,6 @@ struct MainView: View {
                 self.reload()
             }, content: {
                 GenerateFlowView()
-                    .environmentObject(self.generateFlow)
             })
                 .navigationBarTitle("Icons")
                 .navigationBarItems(trailing: self.newSessionButton)
